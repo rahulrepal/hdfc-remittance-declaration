@@ -1,9 +1,6 @@
 """
     Generate declaration pdf for hdfc remittance using standard template
 """
-# TODO : Handle for signature
-# TODO : Create cli
-# TODO : Handle code to get pan no. and other data
 # FIXME : fix chunky fonts
 # FIXME : remove temporary file or use strings directly
 
@@ -24,8 +21,10 @@ env = Environment(
 )
 
 template = env.get_template("declaration_template.html")
+temp = os.path.join(root, "temp")
 
-temp_filepath = os.path.join(root, "temp_declaration.html")
+temp_html_filepath = os.path.join(temp, "declaration.html")
+temp_pdf_filepath = os.path.join(temp, "declaration.pdf")
 
 
 def _validate_zip(path):
@@ -60,39 +59,61 @@ def _get_remittance_data(zip_path):
     return remittance_data
 
 
-def _prepare_template_constants(zip_path):
+def _prepare_template_constants(zip_path, **data):
     remittance_data = _get_remittance_data(zip_path)
     return {
-        "branch_name": remittance_data.get("Branch"),
+        "branch_name": data.get("branch_name", "").upper(),
         "curr_date": datetime.now().strftime("%d/%m/%Y"),
         "amount": remittance_data.get("Amount", "Empty"),
         "currency": "INR",
         "remittance_date": remittance_data.get("Initiation_Date", "Empty"),
         "inward_reference_number": remittance_data.get("Customer_Ref_No", "Empty"),
         "account_number": remittance_data.get("Beneficiary_Bank_Acc", "Empty"),
-        "pan_number": remittance_data.get("pan_number", "Empty"),
+        "pan_number": data.get("pan_number", "Empty"),
         "customer_number": remittance_data.get("IndiaLink_Ref_No", "Empty"),
-        "purpose_desciption": remittance_data.get("Payment_Details", "Empty"),
-        "rendered_from": remittance_data.get("rendered_from", "Empty"),
-        "rendered_to": remittance_data.get("rendered_to", "Empty"),
+        "purpose_description": remittance_data.get("Payment_Details", "Empty"),
+        "rendered_from": data.get("rendered_from", "Empty"),
+        "rendered_to": data.get("rendered_to", "Empty"),
     }
 
 
 def _write_data(template_constants):
-    with open(temp_filepath, "w") as fp:
+    with open(temp_html_filepath, "w") as fp:
         fp.write(template.render(**template_constants))
+        fp.flush()
 
 
-def _convert_to_pdf(filepath, output_path="declaration.pdf"):
-    return pdfkit.from_file(filepath, output_path, options={"--print-media-type": None})
+def _convert_to_pdf(filepath):
+    return pdfkit.from_file(
+        filepath, temp_pdf_filepath, options={"--print-media-type": None}
+    )
 
 
-def create_declaration_pdf(zip_path, signature_path):
+def create_declaration_pdf(zip_path, signature_path, declaration_details=None):
     if not zip_path or not signature_path:
         raise ValueError(
             "Zip path and signature path are required for generating declaration"
         )
+    if not declaration_details:
+        declaration_details = {}
     _validate_zip(zip_path)
-    template_constants = _prepare_template_constants(zip_path)
-    _write_data(template_constants)
-    _convert_to_pdf(temp_filepath)
+    _write_data(_prepare_template_constants(
+        zip_path, **declaration_details
+        )
+    )
+    _convert_to_pdf(temp_html_filepath)
+    return temp_pdf_filepath
+
+def perform_cleanup(uploaded_files=[]):
+    files_to_delete = [
+        temp_html_filepath, temp_pdf_filepath
+    ]
+
+    if uploaded_files:
+        files_to_delete.extend(uploaded_files)
+    
+    for file in files_to_delete:
+        if os.path.exists(file) and os.path.isfile(file):
+            os.remove(file)
+    
+

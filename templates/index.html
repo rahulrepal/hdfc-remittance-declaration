@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Gen Declaration</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body class="">
+    <div class="jumbotron  d-flex align-items-center">
+        <div class="container">
+            <form action="" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="branch_name">Branch Name</label>
+                    <input type="text" class="form-control" id="branch_name" aria-describedby="emailHelp"
+                        placeholder="Enter HDFC Branch Name" name="branch_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="pan_number">Pan Number</label>
+                    <input type="text" class="form-control" id="pan_number" aria-describedby="emailHelp"
+                        placeholder="Enter Pan No." name="pan_number" required>
+                </div>
+                <div class="form-group">
+                    <label for="rendered_from">Shipment of goods/service rendered from</label>
+                    <input type="text" class="form-control" id="rendered_from" aria-describedby="emailHelp"
+                        placeholder="Enter Country"  name="rendered_from"  value="No" required>
+                    <small>Required only if purpose of inward remittance is against export of goods/service</small>
+                </div>
+                <div class="form-group">
+                    <label for="rendered_to">Shipment of goods/service rendered from</label>
+                    <input type="text" class="form-control" id="rendered_to" aria-describedby="emailHelp"
+                        placeholder="Enter Country" name="rendered_to"  value="No" required>
+                        <small>Required only if purpose of inward remittance is against export of goods/service</small>
+                </div>
+                <div class="form-group">
+                    <label for="zip_file">Declaration Zip File</label>
+                    <input type="file" class="form-control-file" id="zip_file" name="zip_file" required>
+                </div>
+                <div class="form-group">
+                    <label for="signature_image">Signature Image</label>
+                    <input type="file" class="form-control-file" id="signature_image" name="signature_image" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Generate Declaration</button>
+
+            </form>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
