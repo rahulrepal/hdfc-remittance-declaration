@@ -59,7 +59,7 @@ def _get_remittance_data(zip_path):
     return remittance_data
 
 
-def _prepare_template_constants(zip_path, **data):
+def _prepare_template_constants(zip_path, signature_path, **data):
     remittance_data = _get_remittance_data(zip_path)
     return {
         "branch_name": data.get("branch_name", "").upper(),
@@ -74,6 +74,8 @@ def _prepare_template_constants(zip_path, **data):
         "purpose_description": remittance_data.get("Payment_Details", "Empty"),
         "rendered_from": data.get("rendered_from", "Empty"),
         "rendered_to": data.get("rendered_to", "Empty"),
+        "signature_image": signature_path,
+        "name": data.get("name")
     }
 
 
@@ -85,7 +87,18 @@ def _write_data(template_constants):
 
 def _convert_to_pdf(filepath):
     return pdfkit.from_file(
-        filepath, temp_pdf_filepath, options={"--print-media-type": None}
+        filepath, temp_pdf_filepath, options={
+            'margin-top': '0.02in',
+            'margin-right': '0.02in',
+            'margin-bottom': '0.02in',
+            'margin-left': '0.02in',
+            'page-size': 'Letter',
+            "--print-media-type": None,
+            'encoding': "UTF-8",
+            "--no-footer-line": None,
+            "--lowquality":None,
+            'dpi': 92
+        }
     )
 
 
@@ -96,9 +109,10 @@ def create_declaration_pdf(zip_path, signature_path, declaration_details=None):
         )
     if not declaration_details:
         declaration_details = {}
+    
     _validate_zip(zip_path)
     _write_data(_prepare_template_constants(
-        zip_path, **declaration_details
+        zip_path, signature_path, **declaration_details
         )
     )
     _convert_to_pdf(temp_html_filepath)

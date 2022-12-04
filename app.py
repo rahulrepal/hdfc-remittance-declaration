@@ -22,6 +22,7 @@ def home_page():
         zip_file = save_file(request.files["zip_file"])
         signature_file = save_file(request.files["signature_image"])
         declaration_details = {
+            "name": request.form.get("name"),
             "branch_name": request.form.get("branch_name"),
             "pan_number": request.form.get("pan_number"),
             "rendered_from": request.form.get("rendered_from"),
